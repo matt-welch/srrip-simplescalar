@@ -1,0 +1,12 @@
+Data Structure
+	Priority for Cache Block
+		Array of priority
+
+
+Function/Additional Implementation
+Replacement Policy
+	What block to eject (scan left to right, linked list)
+	set relaced block priorities to 2
+	if no block found increment priorities
+Update priority on hit
+	Set priority to zero on cache hit
