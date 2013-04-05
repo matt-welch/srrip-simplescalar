@@ -1,12 +1,14 @@
 Data Structure
-	Priority for Cache Block
-		Array of priority
+	Re-Reference Interval for Cache Block
+		Array of Re-Reference Prediction Values (RRPV)
 
 
 Function/Additional Implementation
 Replacement Policy
-	What block to eject (scan left to right, linked list)
-	set relaced block priorities to 2
-	if no block found increment priorities
+	(1) Scan left to right, looking for a block with RRPV=3
+	(2) if '3' found, goto (5)
+	(3) increment all RRPV's
+	(4) goto step (1) 
+	(5) replace block with RRPV=3, set replaced block RRPV to 2
 Update priority on hit
 	Set priority to zero on cache hit

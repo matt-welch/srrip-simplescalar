@@ -515,6 +515,8 @@ cache_access(struct cache_t *cp,	/* cache to access */
   struct cache_blk_t *blk, *repl;
   int lat = 0;
 
+	struct cache_blk_t * current;
+
   /* default replacement address */
   if (repl_addr)
     *repl_addr = 0;
@@ -579,7 +581,37 @@ cache_access(struct cache_t *cp,	/* cache to access */
     break;
   case SRRIP:
 	/* implement SRRIP policy here */
-
+	/* algorithm: 
+	(1) Scan left to right, looking for a block with RRPV=3 (do {} while RRPV < 3)
+	(2) if '3' found, goto (5)	
+	(3) increment all RRPV's
+	(4) goto step (1) 
+	(5) replace block with RRPV=3, set replaced block RRPV to 2
+	Update priority on hit
+		Set priority to zero on cache hit
+	 */
+	repl = NULL;
+	while(repl == NULL){
+		current = cp->sets[set].way_head;
+		while(current != NULL && repl == NULL){/* (1) scan L->R looking for rrpv==3 */
+			if(current->rrpv == 3){/* this is the block to replace */
+				repl = current;	/* (2) rrpv==3 found, drop through to replace block */
+			}else
+				current = current->way_next; /* keep looking if rrpv !=3 */
+		}
+		if(repl == NULL){
+			/* made it through the set without finding rrpv==3.  
+			 * decrement all the rrpv valuesin the set then try again*/
+			current = cp->sets[set].way_head; /* reset ptr to head */
+			while(current != NULL){
+				current->rrpv++; /* (3) increment all RRPV's */
+				current = current->way_next;
+			}
+		}
+		/* (4) goto step(1) */
+	}
+	/* to get here, repl must have been reset to a block address */
+	break;
   case Random:
     {
       int bindex = myrand() & (cp->assoc - 1);
