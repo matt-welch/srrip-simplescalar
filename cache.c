@@ -586,10 +586,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
 	(2) if '3' found, goto (5)	
 	(3) increment all RRPV's
 	(4) goto step (1) 
-	(5) replace block with RRPV=3, set replaced block RRPV to 2
-	Update priority on hit
-		Set priority to zero on cache hit
-	 */
+	(5) replace block with RRPV=3, set replaced block RRPV to 2  */
 	repl = NULL;
 	while(repl == NULL){
 		current = cp->sets[set].way_head;
@@ -610,6 +607,8 @@ cache_access(struct cache_t *cp,	/* cache to access */
 		}
 		/* (4) goto step(1) */
 	}
+	/* update the way list to replace the block at the tail  */
+	update_way_list(&cp->sets[set], repl, Tail);
 	/* to get here, repl must have been reset to a block address */
 	break;
   case Random:
