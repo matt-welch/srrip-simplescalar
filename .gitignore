@@ -85,6 +85,5 @@ target-alpha/
 target-pisa/
 tests
 tests-alpha/
-tests-pisa/
 textprof.pl
 version.h
