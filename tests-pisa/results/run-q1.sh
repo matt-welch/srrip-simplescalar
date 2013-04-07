@@ -1,7 +1,7 @@
 #!/bin/bash
-# run-sim-outorder.sh
+# run-q1.sh
 #
-# runs sim-outorder with a particular configuration file
+# For question 1, runs sim-outorder with a particular configuration file
 
 export MYCONFIG=Q1a
 

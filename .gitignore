@@ -1,7 +1,12 @@
 # list of ignore patterns for SRRIP-SImpleScalar
+# temporary files
 *.o
 *~
 *swp
+#output files" 
+*.out
+*.trc
+# other files
 tags
 ANNOUNCE-3.0
 CONTRIBUTORS

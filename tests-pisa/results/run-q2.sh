@@ -1,7 +1,8 @@
 #!/bin/bash
-# run-sim-outorder.sh
+# run-q2.sh
+# 
 #
-# runs sim-outorder with a particular configuration file
+# For Question 2: runs sim-outorder with a particular configuration file
 
 export MYCONFIG=Q2
 
@@ -15,7 +16,6 @@ echo "sim-outorder for $MYCONFIG, $MYTEST complete @ $(date)"
 echo
 
 export MYTEST="anagram"  
-export MYTESTPARAMS="$MYTEST ../inputs/words < ../inputs/input.txt"
 echo "Running sim-outorder for $MYCONFIG, $MYTEST @ $(date)"
 ./sim-outorder -config configQ2.cfg \
 	-ptrace Q2-anagram.trc 0:1024 \
@@ -26,12 +26,12 @@ echo "sim-outorder for $MYCONFIG, $MYTEST complete @ $(date)"
 
 echo
 export MYTEST="go.ss"
-export MYTESTPARAMS="$MYTEST 2 8 < ../inputs/null.in"
 echo "Running sim-outorder for $MYCONFIG, $MYTEST @ $(date)"
 ./sim-outorder -config configQ2.cfg \
 	-ptrace Q2-go.ss.trc 0:1024 \
 	-redir:sim sim_config_$MYCONFIG-$MYTEST.out \
-	../bin.little/go.ss 2 8 < ../inputs/null.in > Q2-go.ss.out
+	../bin.little/go.ss 2 8 < ../inputs/null.in \
+	> Q2-go.ss.out
 echo "sim-outorder for $MYCONFIG, $MYTEST complete @ $(date)"
 echo
 cp ./*.{cfg,trc,out} ../../../project1/results/$(date +"%Y%m%d")/

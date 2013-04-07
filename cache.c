@@ -692,7 +692,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
  cache_hit: /* slow hit handler */
   
   /* **HIT** */
-  blk->rrpv == 0;
+  blk->rrpv = 0;
   cp->hits++;
 
   /* copy data out of cache block, if block exists */
@@ -728,7 +728,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
  cache_fast_hit: /* fast hit handler */
   
   /* **FAST HIT** */
-  blk->rrpv == 0;
+  blk->rrpv = 0;
   cp->hits++;
 
   /* copy data out of cache block, if block exists */
