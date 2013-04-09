@@ -194,66 +194,66 @@ update_way_list(struct cache_set_t *set,	/* set contained way chain */
 		struct cache_blk_t *blk,	/* block to insert */
 		enum list_loc_t where)		/* insert location */
 {
-  /* unlink entry from the way list */
-  if (!blk->way_prev && !blk->way_next)
-    {
-      /* only one entry in list (direct-mapped), no action */
-      assert(set->way_head == blk && set->way_tail == blk);
-      /* Head/Tail order already */
-      return;
-    }
-  /* else, more than one element in the list */
-  else if (!blk->way_prev)
-    {
-      assert(set->way_head == blk && set->way_tail != blk);
-      if (where == Head)
+	/* unlink entry from the way list */
+	if (!blk->way_prev && !blk->way_next)
 	{
-	  /* already there */
-	  return;
+		/* only one entry in list (direct-mapped), no action */
+		assert(set->way_head == blk && set->way_tail == blk);
+		/* Head/Tail order already */
+		return;
 	}
-      /* else, move to tail */
-      set->way_head = blk->way_next;
-      blk->way_next->way_prev = NULL;
-    }
-  else if (!blk->way_next)
-    {
-      /* end of list (and not front of list) */
-      assert(set->way_head != blk && set->way_tail == blk);
-      if (where == Tail)
+	/* else, more than one element in the list */
+	else if (!blk->way_prev)
 	{
-	  /* already there */
-	  return;
+		assert(set->way_head == blk && set->way_tail != blk);
+		if (where == Head)
+		{
+			/* already there */
+			return;
+		}
+		/* else, move to tail */
+		set->way_head = blk->way_next;
+		blk->way_next->way_prev = NULL;
 	}
-      set->way_tail = blk->way_prev;
-      blk->way_prev->way_next = NULL;
-    }
-  else
-    {
-      /* middle of list (and not front or end of list) */
-      assert(set->way_head != blk && set->way_tail != blk);
-      blk->way_prev->way_next = blk->way_next;
-      blk->way_next->way_prev = blk->way_prev;
-    }
+	else if (!blk->way_next)
+	{
+		/* end of list (and not front of list) */
+		assert(set->way_head != blk && set->way_tail == blk);
+		if (where == Tail)
+		{
+			/* already there */
+			return;
+		}
+		set->way_tail = blk->way_prev;
+		blk->way_prev->way_next = NULL;
+	}
+	else
+	{
+		/* middle of list (and not front or end of list) */
+		assert(set->way_head != blk && set->way_tail != blk);
+		blk->way_prev->way_next = blk->way_next;
+		blk->way_next->way_prev = blk->way_prev;
+	}
 
-  /* link BLK back into the list */
-  if (where == Head)
-    {
-      /* link to the head of the way list */
-      blk->way_next = set->way_head;
-      blk->way_prev = NULL;
-      set->way_head->way_prev = blk;
-      set->way_head = blk;
-    }
-  else if (where == Tail)
-    {
-      /* link to the tail of the way list */
-      blk->way_prev = set->way_tail;
-      blk->way_next = NULL;
-      set->way_tail->way_next = blk;
-      set->way_tail = blk;
-    }
-  else
-    panic("bogus WHERE designator");
+	/* link BLK back into the list */
+	if (where == Head)
+	{
+		/* link to the head of the way list */
+		blk->way_next = set->way_head;
+		blk->way_prev = NULL;
+		set->way_head->way_prev = blk;
+		set->way_head = blk;
+	}
+	else if (where == Tail)
+	{
+		/* link to the tail of the way list */
+		blk->way_prev = set->way_tail;
+		blk->way_next = NULL;
+		set->way_tail->way_next = blk;
+		set->way_tail = blk;
+	}
+	else
+		panic("bogus WHERE designator");
 }
 
 /* create and initialize a general cache structure */
@@ -356,48 +356,48 @@ cache_create(char *name,		/* name of the cache */
       cp->sets[i].way_head = NULL;
       cp->sets[i].way_tail = NULL;
       /* get a hash table, if needed */
-      if (cp->hsize)
-	{
-	  cp->sets[i].hash =
-	    (struct cache_blk_t **)calloc(cp->hsize,
-					  sizeof(struct cache_blk_t *));
-	  if (!cp->sets[i].hash)
-	    fatal("out of virtual memory");
-	}
-      /* NOTE: all the blocks in a set *must* be allocated contiguously,
-	 otherwise, block accesses through SET->BLKS will fail (used
-	 during random replacement selection) */
-      cp->sets[i].blks = CACHE_BINDEX(cp, cp->data, bindex);
-      
-      /* link the data blocks into ordered way chain and hash table bucket
-         chains, if hash table exists */
-      for (j=0; j<assoc; j++)
-	{
-	  /* locate next cache block */
-	  blk = CACHE_BINDEX(cp, cp->data, bindex);
-	  bindex++;
-
-	  /* invalidate new cache block */
-	  blk->status = 0;
-	  blk->tag = 0;
-	  blk->ready = 0;
-	  blk->user_data = (usize != 0
-			    ? (byte_t *)calloc(usize, sizeof(byte_t)) : NULL);
-
-	  /* insert cache block into set hash table */
 	  if (cp->hsize)
-	    link_htab_ent(cp, &cp->sets[i], blk);
+	  {
+		  cp->sets[i].hash =
+			  (struct cache_blk_t **)calloc(cp->hsize,
+					  sizeof(struct cache_blk_t *));
+		  if (!cp->sets[i].hash)
+			  fatal("out of virtual memory");
+	  }
+	  /* NOTE: all the blocks in a set *must* be allocated contiguously,
+		 otherwise, block accesses through SET->BLKS will fail (used
+		 during random replacement selection) */
+	  cp->sets[i].blks = CACHE_BINDEX(cp, cp->data, bindex);
 
-	  /* insert into head of way list, order is arbitrary at this point */
-	  blk->way_next = cp->sets[i].way_head;
-	  blk->way_prev = NULL;
-	  if (cp->sets[i].way_head)
-	    cp->sets[i].way_head->way_prev = blk;
-	  cp->sets[i].way_head = blk;
-	  if (!cp->sets[i].way_tail)
-	    cp->sets[i].way_tail = blk;
+	  /* link the data blocks into ordered way chain and hash table bucket
+		 chains, if hash table exists */
+	  for (j=0; j<assoc; j++)
+	  {
+		  /* locate next cache block */
+		  blk = CACHE_BINDEX(cp, cp->data, bindex);
+		  bindex++;
+
+		  /* invalidate new cache block */
+		  blk->status = 0;
+		  blk->tag = 0;
+		  blk->ready = 0;
+		  blk->user_data = (usize != 0
+				  ? (byte_t *)calloc(usize, sizeof(byte_t)) : NULL);
+
+		  /* insert cache block into set hash table */
+		  if (cp->hsize)
+			  link_htab_ent(cp, &cp->sets[i], blk);
+
+		  /* insert into head of way list, order is arbitrary at this point */
+		  blk->way_next = cp->sets[i].way_head;
+		  blk->way_prev = NULL;
+		  if (cp->sets[i].way_head)
+			  cp->sets[i].way_head->way_prev = blk;
+		  cp->sets[i].way_head = blk;
+		  if (!cp->sets[i].way_tail)
+			  cp->sets[i].way_tail = blk;
+	  }
 	}
-    }
   return cp;
 }
 
@@ -419,17 +419,17 @@ void
 cache_config(struct cache_t *cp,	/* cache instance */
 	     FILE *stream)		/* output stream */
 {
-  fprintf(stream,
-	  "cache: %s: %d sets, %d byte blocks, %d bytes user data/block\n",
-	  cp->name, cp->nsets, cp->bsize, cp->usize);
-  fprintf(stream,
-	  "cache: %s: %d-way, `%s' replacement policy, write-back\n",
-	  cp->name, cp->assoc,
-	  cp->policy == LRU ? "LRU"
-	  : cp->policy == Random ? "Random"
-	  : cp->policy == FIFO ? "FIFO"
-	  : cp->policy == SRRIP ? "SRRIP"
-	  : (abort(), ""));
+	fprintf(stream,
+			"cache: %s: %d sets, %d byte blocks, %d bytes user data/block\n",
+			cp->name, cp->nsets, cp->bsize, cp->usize);
+	fprintf(stream,
+			"cache: %s: %d-way, `%s' replacement policy, write-back\n",
+			cp->name, cp->assoc,
+			cp->policy == LRU ? "LRU"
+			: cp->policy == Random ? "Random"
+			: cp->policy == FIFO ? "FIFO"
+			: cp->policy == SRRIP ? "SRRIP"
+			: (abort(), ""));
 }
 
 /* register cache stats */
@@ -518,53 +518,53 @@ cache_access(struct cache_t *cp,	/* cache to access */
 	struct cache_blk_t * current;
 
   /* default replacement address */
-  if (repl_addr)
-    *repl_addr = 0;
+	if (repl_addr)
+		*repl_addr = 0;
 
-  /* check alignments */
-  if ((nbytes & (nbytes-1)) != 0 || (addr & (nbytes-1)) != 0)
-    fatal("cache: access error: bad size or alignment, addr 0x%08x", addr);
+	/* check alignments */
+	if ((nbytes & (nbytes-1)) != 0 || (addr & (nbytes-1)) != 0)
+		fatal("cache: access error: bad size or alignment, addr 0x%08x", addr);
 
-  /* access must fit in cache block */
-  /* FIXME:
-     ((addr + (nbytes - 1)) > ((addr & ~cp->blk_mask) + (cp->bsize - 1))) */
-  if ((addr + nbytes) > ((addr & ~cp->blk_mask) + cp->bsize))
-    fatal("cache: access error: access spans block, addr 0x%08x", addr);
+	/* access must fit in cache block */
+	/* FIXME:
+	   ((addr + (nbytes - 1)) > ((addr & ~cp->blk_mask) + (cp->bsize - 1))) */
+	if ((addr + nbytes) > ((addr & ~cp->blk_mask) + cp->bsize))
+		fatal("cache: access error: access spans block, addr 0x%08x", addr);
 
-  /* permissions are checked on cache misses */
+	/* permissions are checked on cache misses */
 
-  /* check for a fast hit: access to same block */
-  if (CACHE_TAGSET(cp, addr) == cp->last_tagset)
-    {
-      /* hit in the same block */
-      blk = cp->last_blk;
-      goto cache_fast_hit;
-    }
-    
-  if (cp->hsize)
-    {
-      /* higly-associativity cache, access through the per-set hash tables */
-      int hindex = CACHE_HASH(cp, tag);
-
-      for (blk=cp->sets[set].hash[hindex];
-	   blk;
-	   blk=blk->hash_next)
+	/* check for a fast hit: access to same block */
+	if (CACHE_TAGSET(cp, addr) == cp->last_tagset)
 	{
-	  if (blk->tag == tag && (blk->status & CACHE_BLK_VALID))
-	    goto cache_hit;
+		/* hit in the same block */
+		blk = cp->last_blk;
+		goto cache_fast_hit;
 	}
-    }
-  else
-    {
-      /* low-associativity cache, linear search the way list */
-      for (blk=cp->sets[set].way_head;
-	   blk;
-	   blk=blk->way_next)
+
+	if (cp->hsize)
 	{
-	  if (blk->tag == tag && (blk->status & CACHE_BLK_VALID))
-	    goto cache_hit;
+		/* higly-associativity cache, access through the per-set hash tables */
+		int hindex = CACHE_HASH(cp, tag);
+
+		for (blk=cp->sets[set].hash[hindex];
+				blk;
+				blk=blk->hash_next)
+		{
+			if (blk->tag == tag && (blk->status & CACHE_BLK_VALID))
+				goto cache_hit;
+		}
 	}
-    }
+	else
+	{
+		/* low-associativity cache, linear search the way list */
+		for (blk=cp->sets[set].way_head;
+				blk;
+				blk=blk->way_next)
+		{
+			if (blk->tag == tag && (blk->status & CACHE_BLK_VALID))
+				goto cache_hit;
+		}
+	}
 
   /* cache block not found */
 
@@ -574,51 +574,51 @@ cache_access(struct cache_t *cp,	/* cache to access */
   /* select the appropriate block to replace, and re-link this entry to
      the appropriate place in the way list */
   switch (cp->policy) {
-  case LRU:
-  case FIFO:
-    repl = cp->sets[set].way_tail;
-    update_way_list(&cp->sets[set], repl, Head);
-    break;
-  case SRRIP:
-	/* implement SRRIP policy here */
-	/* algorithm: 
-	(1) Scan left to right, looking for a block with RRPV=3 (do {} while RRPV < 3)
-	(2) if '3' found, goto (5)	
-	(3) increment all RRPV's
-	(4) goto step (1) 
-	(5) replace block with RRPV=3, set replaced block RRPV to 2  */
-	repl = NULL;
-	while(repl == NULL){
-		current = cp->sets[set].way_head;
-		while(current != NULL && repl == NULL){/* (1) scan L->R looking for rrpv==3 */
-			if(current->rrpv == 3){/* this is the block to replace */
-				repl = current;	/* (2) rrpv==3 found, drop through to replace block */
-			}else
-				current = current->way_next; /* keep looking if rrpv !=3 */
-		}
-		if(repl == NULL){
-			/* made it through the set without finding rrpv==3.  
-			 * decrement all the rrpv valuesin the set then try again*/
-			current = cp->sets[set].way_head; /* reset ptr to head */
-			while(current != NULL){
-				current->rrpv++; /* (3) increment all RRPV's */
-				current = current->way_next;
-			}
-		}
-		/* (4) goto step(1) */
-	}
-	/* update the way list to replace the block at the tail  */
-	update_way_list(&cp->sets[set], repl, Tail);
-	/* to get here, repl must have been reset to a block address */
-	break;
-  case Random:
-    {
-      int bindex = myrand() & (cp->assoc - 1);
-      repl = CACHE_BINDEX(cp, cp->sets[set].blks, bindex);
-    }
-    break;
-  default:
-    panic("bogus replacement policy");
+	  case LRU:
+	  case FIFO:
+		  repl = cp->sets[set].way_tail;
+		  update_way_list(&cp->sets[set], repl, Head);
+		  break;
+	  case SRRIP:
+		  /* implement SRRIP policy here */
+		  /* algorithm: 
+			 (1) Scan left to right, looking for a block with RRPV=3 (do {} while RRPV < 3)
+			 (2) if '3' found, goto (5)	
+			 (3) increment all RRPV's
+			 (4) goto step (1) 
+			 (5) replace block with RRPV=3, set replaced block RRPV to 2  */
+		  repl = NULL;
+		  while(repl == NULL){
+			  current = cp->sets[set].way_head;
+			  while(current != NULL && repl == NULL){/* (1) scan L->R looking for rrpv==3 */
+				  if(current->rrpv == 3){/* this is the block to replace */
+					  repl = current;	/* (2) rrpv==3 found, drop through to replace block */
+				  }else
+					  current = current->way_next; /* keep looking if rrpv !=3 */
+			  }
+			  if(repl == NULL){
+				  /* made it through the set without finding rrpv==3.  
+				   * decrement all the rrpv valuesin the set then try again*/
+				  current = cp->sets[set].way_head; /* reset ptr to head */
+				  while(current != NULL){
+					  current->rrpv++; /* (3) increment all RRPV's */
+					  current = current->way_next;
+				  }
+			  }
+			  /* (4) goto step(1) */
+		  }
+		  /* update the way list to replace the block at the tail  */
+		  update_way_list(&cp->sets[set], repl, Tail);
+		  /* to get here, repl must have been reset to a block address */
+		  break;
+	  case Random:
+		  {
+			  int bindex = myrand() & (cp->assoc - 1);
+			  repl = CACHE_BINDEX(cp, cp->sets[set].blks, bindex);
+		  }
+		  break;
+	  default:
+		  panic("bogus replacement policy");
   }
 
   /* remove this block from the hash bucket chain, if hash exists */
@@ -631,30 +631,30 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
   /* write back replaced block data */
   if (repl->status & CACHE_BLK_VALID)
-    {
-      cp->replacements++;
+  {
+	  cp->replacements++;
 
-      if (repl_addr)
-	*repl_addr = CACHE_MK_BADDR(cp, repl->tag, set);
- 
-      /* don't replace the block until outstanding misses are satisfied */
-      lat += BOUND_POS(repl->ready - now);
- 
-      /* stall until the bus to next level of memory is available */
-      lat += BOUND_POS(cp->bus_free - (now + lat));
- 
-      /* track bus resource usage */
-      cp->bus_free = MAX(cp->bus_free, (now + lat)) + 1;
+	  if (repl_addr)
+		  *repl_addr = CACHE_MK_BADDR(cp, repl->tag, set);
 
-      if (repl->status & CACHE_BLK_DIRTY)
-	{
-	  /* write back the cache block */
-	  cp->writebacks++;
-	  lat += cp->blk_access_fn(Write,
-				   CACHE_MK_BADDR(cp, repl->tag, set),
-				   cp->bsize, repl, now+lat);
-	}
-    }
+	  /* don't replace the block until outstanding misses are satisfied */
+	  lat += BOUND_POS(repl->ready - now);
+
+	  /* stall until the bus to next level of memory is available */
+	  lat += BOUND_POS(cp->bus_free - (now + lat));
+
+	  /* track bus resource usage */
+	  cp->bus_free = MAX(cp->bus_free, (now + lat)) + 1;
+
+	  if (repl->status & CACHE_BLK_DIRTY)
+	  {
+		  /* write back the cache block */
+		  cp->writebacks++;
+		  lat += cp->blk_access_fn(Write,
+				  CACHE_MK_BADDR(cp, repl->tag, set),
+				  cp->bsize, repl, now+lat);
+	  }
+  }
 
   /* update block tags */
   repl->tag = tag;
@@ -666,9 +666,9 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
   /* copy data out of cache block */
   if (cp->balloc)
-    {
-      CACHE_BCOPY(cmd, repl, bofs, p, nbytes);
-    }
+  {
+	  CACHE_BCOPY(cmd, repl, bofs, p, nbytes);
+  }
 
   /* update dirty status */
   if (cmd == Write)
@@ -697,20 +697,20 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
   /* copy data out of cache block, if block exists */
   if (cp->balloc)
-    {
-      CACHE_BCOPY(cmd, blk, bofs, p, nbytes);
-    }
+  {
+	  CACHE_BCOPY(cmd, blk, bofs, p, nbytes);
+  }
 
   /* update dirty status */
   if (cmd == Write)
-    blk->status |= CACHE_BLK_DIRTY;
+	  blk->status |= CACHE_BLK_DIRTY;
 
   /* if LRU replacement and this is not the first element of list, reorder */
   if (blk->way_prev && cp->policy == LRU)
-    {
-      /* move this block to head of the way (MRU) list */
-      update_way_list(&cp->sets[set], blk, Head);
-    }
+  {
+	  /* move this block to head of the way (MRU) list */
+	  update_way_list(&cp->sets[set], blk, Head);
+  }
 
   /* tag is unchanged, so hash links (if they exist) are still valid */
 
@@ -733,9 +733,9 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
   /* copy data out of cache block, if block exists */
   if (cp->balloc)
-    {
-      CACHE_BCOPY(cmd, blk, bofs, p, nbytes);
-    }
+  {
+	  CACHE_BCOPY(cmd, blk, bofs, p, nbytes);
+  }
 
   /* update dirty status */
   if (cmd == Write)
