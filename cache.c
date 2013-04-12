@@ -381,6 +381,7 @@ cache_create(char *name,		/* name of the cache */
 		  blk->status = 0;
 		  blk->tag = 0;
 		  blk->ready = 0;
+		  blk->rrpv = 3;			// New empty blocks are set to 3
 		  blk->user_data = (usize != 0
 				  ? (byte_t *)calloc(usize, sizeof(byte_t)) : NULL);
 
@@ -607,7 +608,8 @@ cache_access(struct cache_t *cp,	/* cache to access */
 			  }
 			  /* (4) goto step(1) */
 		  }
-		  /* update the way list to replace the block at the tail  */
+		  /* update the way list to replace the block at the tail set replaced block's rrpv value to 2 */
+		  repl->rrpv = 2;
 		  update_way_list(&cp->sets[set], repl, Tail);
 		  /* to get here, repl must have been reset to a block address */
 		  break;
@@ -692,7 +694,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
  cache_hit: /* slow hit handler */
   
   /* **HIT** */
-  blk->rrpv = 0;
+  blk->rrpv = 0;			// Cache hit set rrpv value to 0
   cp->hits++;
 
   /* copy data out of cache block, if block exists */
@@ -728,7 +730,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
  cache_fast_hit: /* fast hit handler */
   
   /* **FAST HIT** */
-  blk->rrpv = 0;
+  blk->rrpv = 0;		// Cache hit set rrpv value to 0
   cp->hits++;
 
   /* copy data out of cache block, if block exists */
