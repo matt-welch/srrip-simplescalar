@@ -4,34 +4,139 @@
 #
 # For Question 2: runs sim-outorder with a particular configuration file
 
-export MYCONFIG=Q2
+MYCONFIG="Q2"
 
-export MYTEST="test-math"
-echo "Running sim-outorder for $MYCONFIG, $MYTEST @ $(date)"
-./sim-outorder -config config$MYCONFIG.cfg \
-	-ptrace $MYCONFIG-$MYTEST.trc 0:1024 \
-	-redir:sim sim_config_$MYCONFIG.out \
+CPOLICY="l"
+
+MYTEST="test-math"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
 	../bin.little/$MYTEST > $MYCONFIG-$MYTEST.out
-echo "sim-outorder for $MYCONFIG, $MYTEST complete @ $(date)"
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses" -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
 echo
 
-export MYTEST="anagram"  
-echo "Running sim-outorder for $MYCONFIG, $MYTEST @ $(date)"
-./sim-outorder -config configQ2.cfg \
-	-ptrace Q2-anagram.trc 0:1024 \
-	-redir:sim sim_config_Q2-anagram.out \
-	../bin.little/anagram ../inputs/words < ../inputs/input.txt \
-	> Q2-anagram.out
-echo "sim-outorder for $MYCONFIG, $MYTEST complete @ $(date)"
+MYTEST="anagram"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST ../inputs/words < \
+	../inputs/input.txt \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
+echo
 
+MYTEST="go.ss"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY  @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST 2 8 < ../inputs/null.in \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
 echo
-export MYTEST="go.ss"
-echo "Running sim-outorder for $MYCONFIG, $MYTEST @ $(date)"
-./sim-outorder -config configQ2.cfg \
-	-ptrace Q2-go.ss.trc 0:1024 \
-	-redir:sim sim_config_$MYCONFIG-$MYTEST.out \
-	../bin.little/go.ss 2 8 < ../inputs/null.in \
-	> Q2-go.ss.out
-echo "sim-outorder for $MYCONFIG, $MYTEST complete @ $(date)"
+
+CPOLICY="f"
+
+MYTEST="test-math"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST > $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses" -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
 echo
-cp ./*.{cfg,trc,out} ../../../project1/results/$(date +"%Y%m%d")/
+
+MYTEST="anagram"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST ../inputs/words < \
+	../inputs/input.txt \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
+echo
+
+MYTEST="go.ss"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY  @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST 2 8 < ../inputs/null.in \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
+echo
+
+
+CPOLICY="s"
+
+MYTEST="test-math"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST > $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses" -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
+echo
+
+MYTEST="anagram"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST ../inputs/words < \
+	../inputs/input.txt \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
+echo
+
+MYTEST="go.ss"
+echo "Running sim-cache for, $MYTEST, Policy=$CPOLICY  @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:$CPOLICY \
+	-cache:il2 il2:512:64:2:$CPOLICY \
+	-cache:dl1 dl1:512:64:512:$CPOLICY \
+	-cache:dl2 dl2:1024:64:2:$CPOLICY \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST 2 8 < ../inputs/null.in \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
+echo
+
+#cp ./*.{cfg,trc,out} ../../../project1/results/$(date +"%Y%m%d")/

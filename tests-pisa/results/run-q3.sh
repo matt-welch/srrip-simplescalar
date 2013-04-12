@@ -3,45 +3,68 @@
 #
 # For question 3: runs sim-cache with a particular configuration file
 
-export MYCONFIG=Q3
-export MYTEST="test-math"
-echo "Running sim-cache for $MYCONFIG, $MYTEST @ $(date)"
-./sim-cache -config config$MYCONFIG.cfg \
-	-ptrace $MYCONFIG-$MYTEST.trc 0:1024 \
-	-redir:sim sim_config_$MYCONFIG.out \
+# ./sim-cache -cache:dl1 dl1:1024:32:1024:s -redir:sim junk.out ../bin.little/test-math > garbage.out
+
+# Icache: L1_16K_1way__L2_32K_2way
+# Dcache: L1_32K_full__L2_64K_2way
+# cache replacement: I:LRU, D:FIFO
+MYCONFIG="Q3"
+MYTEST="test-math"
+echo "Running sim-cache for, $MYTEST @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:l \
+	-cache:il2 il2:512:64:2:l \
+	-cache:dl1 dl1:512:64:512:f \
+	-cache:dl2 dl2:1024:64:2:f \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
 	../bin.little/$MYTEST > $MYCONFIG-$MYTEST.out
-echo "sim-cache for $MYCONFIG, $MYTEST complete @ $(date)"
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses" -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
 echo
 
-export MYTEST="anagram"  
-echo "Running sim-cache for $MYCONFIG, $MYTEST @ $(date)"
-./sim-cache -config configQ3.cfg \
-	-ptrace Q3-anagram.trc 0:1024 \
-	-redir:sim sim_config_Q3-anagram.out \
-	../bin.little/anagram ../inputs/words < ../inputs/input.txt \
-	> Q3-anagram.out
-echo "sim-cache for $MYCONFIG, $MYTEST complete @ $(date)"
-
-echo
-export MYTEST="go.ss"
-echo "Running sim-cache for $MYCONFIG, $MYTEST @ $(date)"
-./sim-cache -config configQ3.cfg \
-	-ptrace Q3-go.ss.trc 0:1024 \
-	-redir:sim sim_config_$MYCONFIG-$MYTEST.out \
-	../bin.little/go.ss 2 8 < ../inputs/null.in \
-	> Q3-go.ss.out
-echo "sim-cache for $MYCONFIG, $MYTEST complete @ $(date)"
+MYTEST="anagram"
+echo "Running sim-cache for, $MYTEST @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:l \
+	-cache:il2 il2:512:64:2:l \
+	-cache:dl1 dl1:512:64:512:f \
+	-cache:dl2 dl2:1024:64:2:f \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST ../inputs/words < \
+	../inputs/input.txt \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
 echo
 
+MYTEST="go.ss"
+echo "Running sim-cache for, $MYTEST @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:l \
+	-cache:il2 il2:512:64:2:l \
+	-cache:dl1 dl1:512:64:512:f \
+	-cache:dl2 dl2:1024:64:2:f \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST 2 8 < ../inputs/null.in \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
 echo
-export MYTEST="perl.ss"
-echo "Running sim-cache for $MYCONFIG, $MYTEST @ $(date)"
-./sim-cache -config configQ3.cfg \
-	-ptrace Q3-perl.ss.trc 0:1024 \
-	-redir:sim sim_config_$MYCONFIG-$MYTEST.out \
-	../bin.little/perl.ss ../inputs/primes.pl < ../inputs/primes.in \
-   	> Q3-primes.out
-echo "sim-cache for $MYCONFIG, $MYTEST complete @ $(date)"
-echo
-cp ./*.{cfg,trc,out} ../../../project1/results/$(date +"%Y%m%d")/
 
+MYTEST="perl.ss"
+echo "Running sim-cache for, $MYTEST @ $(date)"
+./sim-cache \
+	-cache:il1 il1:256:64:1:l \
+	-cache:il2 il2:512:64:2:l \
+	-cache:dl1 dl1:512:64:512:f \
+	-cache:dl2 dl2:1024:64:2:f \
+	-redir:sim $MYCONFIG-$MYTEST.stats.out \
+	../bin.little/$MYTEST ../inputs/primes.pl \
+   	< ../inputs/primes.in \
+	> $MYCONFIG-$MYTEST.out
+grep $MYCONFIG-$MYTEST.stats.out -e "total number of instructions executed" -e "total number of loads and stores executed" -e "il1.misses" -e "il2.misses"  -e "dl1.misses" -e "dl2.misses" --color=auto
+echo "sim-cache for  $MYTEST complete @ $(date)"
+echo
+
+#cp ./*.{cfg,trc,out} ../../../project1/results/$(date +"%Y%m%d")/
+#
